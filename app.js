@@ -3,8 +3,9 @@ const expencesRouter = require("./routes/expencesRoutes");
 const serverless = require("serverless-http");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-
+const cors = require("cors");
 const app = express();
+app.use(cors());
 dotenv.config({ path: "./config.env" });
 
 const DB = process.env.DATABASE_REMOTE.replace(
