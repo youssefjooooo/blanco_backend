@@ -28,12 +28,13 @@ app.get("/api/v1/expences", (req, res) => {
   });
 });
 
+const port = process.env.PORT || 3000;
 if (process.env.NODE_ENV === "production") {
-  module.exports.handler = serverless(app);
-} else {
-  // Local development: run the app with app.listen()
-  const port = process.env.PORT || 3000;
   app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Server running in production at http://localhost:${port}`);
+  });
+} else {
+  app.listen(port, () => {
+    console.log(`Server running in development at http://localhost:${port}`);
   });
 }
