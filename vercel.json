@@ -1,15 +1,12 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "app.js",
-      "use": "@vercel/node"
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs16.x"
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/v1/expences",
-      "dest": "app.js"
-    }
-  ]
+  },
+  "routes": {
+    "/api/v1/expenses": "/api/v1/expenses/app.js",
+    "/api/v1/expenses/:id": "/api/v1/expenses/[id].js"
+  }
 }
