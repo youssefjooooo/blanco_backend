@@ -5,7 +5,7 @@ const serverless = require("serverless-http");
 
 dotenv.config({ path: "./config.env" });
 const app = require("./app");
-// Database connection
+
 const DB = process.env.DATABASE_REMOTE.replace(
   "<PASSWORD>",
   process.env.DATABASE_PASSWORD
@@ -20,9 +20,15 @@ mongoose
     console.error("Database connection error:", err);
   });
 
-// Serverless handler for production
+app.get("/api/v1/expences", (req, res) => {
+  res.status(200).json({
+    message: "Server is running",
+    env: process.env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 if (process.env.NODE_ENV === "production") {
-  // Export serverless function handler
   module.exports.handler = serverless(app);
 } else {
   // Local development: run the app with app.listen()
