@@ -4,14 +4,12 @@ const serverless = require("serverless-http");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const bodyParser = require("body-parser");
 
 const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(bodyParser.json());
+app.use(express.json()); // Built-in Express JSON parser
 
 // Load environment variables
 dotenv.config({ path: "./config.env" });
