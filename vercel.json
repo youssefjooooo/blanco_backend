@@ -4,6 +4,5 @@
     "api/**/*.js": {
       "runtime": "nodejs16.x"
     }
-  },
-  "routes": [{ "/api/v1/expenses": "/api/v1/expenses/app.js" }]
+  }
 }
