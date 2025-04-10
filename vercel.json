@@ -6,7 +6,6 @@
     }
   },
   "routes": {
-    "/api/v1/expenses": "/api/v1/expenses/app.js",
-    "/api/v1/expenses/:id": "/api/v1/expenses/[id].js"
+    "/api/v1/expenses": "/api/v1/expenses/app.js"
   }
 }
