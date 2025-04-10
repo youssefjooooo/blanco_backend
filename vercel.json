@@ -3,7 +3,7 @@
 
   "builds": [
     {
-      "src": "/routes/expencesRoutes.js",
+      "src": "/app.js",
       "use": "@vercel/node"
     }
   ]
