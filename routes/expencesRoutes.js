@@ -3,6 +3,8 @@ const expencesController = require("../controllers/expencesController");
 
 const router = express.Router();
 
+router.route("/stats").get(expencesController.generalStats);
+
 router
   .route("/")
   .get(expencesController.getExpences)
