@@ -32,24 +32,25 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (!user || !(await user.isPasswordCorrect(password, user.password)))
     return next(new AppError("Incorrect email or password"));
-
   const token = signToken(user._id);
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Is this you?",
-      message:
-        "We noticed a new login to your account. If this was you, no action is needed. If you didn’t authorize this activity, please contact the development team or your supervisor immediately",
-    });
-    res.status(200).json({
-      status: "success",
-      token,
-    });
-  } catch (err) {
-    return next(
-      new AppError("Couldn't send an email. Please try again later!", 400)
-    );
-  }
+  if (token)
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Is this you?",
+        message:
+          "We noticed a new login to your account. If this was you, no action is needed. If you didn’t authorize this activity, please contact the development team or your supervisor immediately",
+      });
+
+      res.status(200).json({
+        status: "success",
+        token,
+      });
+    } catch {
+      return next(
+        new AppError("Couldn't send an email. Please try again later!", 400)
+      );
+    }
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
