@@ -46,7 +46,8 @@ exports.login = catchAsync(async (req, res, next) => {
         status: "success",
         token,
       });
-    } catch {
+    } catch (err) {
+      console.error("Email sending failed:", err);
       return next(
         new AppError("Couldn't send an email. Please try again later!", 400)
       );
