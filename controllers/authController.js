@@ -35,6 +35,12 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const token = signToken(user._id);
 
+  await sendEmail({
+    email: "youssefm.f45@gmail.com",
+    subject: "Is this you?",
+    message:
+      "We noticed a new login to your account. If this was you, no action is needed. If you didn’t authorize this activity, please contact the development team or your supervisor immediately",
+  });
   res.status(200).json({
     status: "success",
     token,
