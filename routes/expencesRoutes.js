@@ -9,7 +9,7 @@ router
   .route("/")
   .get(
     authController.protect,
-    authController.restrictTo("admin, user"),
+    authController.restrictTo("admin", "user"),
     expencesController.getExpences
   )
   .post(expencesController.createExpence);
