@@ -39,7 +39,7 @@ exports.login = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAccountInfo = catchAsync(async (req, res, next) => {
+exports.protect = catchAsync(async (req, res, next) => {
   let token;
   if (
     req.headers.authorization &&
@@ -47,18 +47,34 @@ exports.getAccountInfo = catchAsync(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
-  if (!token) return next(new AppError("Please provide a token!", 401));
-  const decoded_token = await promisify(jwt.verify)(
-    token,
-    process.env.JWT_SECRET
-  );
 
-  const user = await User.findById(decoded_token.id);
+  if (!token) return next(new AppError("Please provide a token!", 401));
+
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.id);
+
   if (!user) return next(new AppError("This user no longer exists!", 404));
+
+  req.user = user;
+  next();
+});
+
+exports.getAccountInfo = (req, res, next) => {
+  if (!req.user) return next(new AppError("Not authenticated", 401));
 
   res.status(200).json({
     status: "success",
-    user,
+    user: req.user,
   });
-  req.user = user; // optional but useful
-});
+};
+
+exports.restrictTo = function (...roles) {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return next(
+        new AppError("You're not authorized to perform this actoin", 403)
+      );
+
+    next();
+  };
+};
