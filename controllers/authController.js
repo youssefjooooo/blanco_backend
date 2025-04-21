@@ -2,6 +2,8 @@ const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
+const sendEmail = require("../utils/email");
+const crypto = require("crypto");
 
 const AppError = require("../utils/appError");
 
@@ -78,3 +80,61 @@ exports.restrictTo = function (...roles) {
     next();
   };
 };
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return next(new AppError("This user doesn't exist!", 404));
+
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
+
+  const resetUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/resetPassword/${resetToken}`;
+
+  const message = `Forgot your password? Submit a PATCH request with your new password and confirmPassword to: ${resetUrl}. \nIf you didn't forget your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password rest token (avaliable for 10 mins)",
+      message,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Email sent successfully!",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetDate = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(new AppError("There was a problem sending the email!", 400));
+  }
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetDate: { $gt: Date.now() },
+  });
+
+  if (!user) return next(new AppError("Token isn't valid or expired", 400));
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetDate = undefined;
+  user.passwordResetToken = undefined;
+  await user.save();
+
+  const token = signToken(user._id);
+  res.status(200).json({
+    status: "success",
+    token,
+  });
+});
